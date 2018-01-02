@@ -1,0 +1,29 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": [ //强制使用一致的缩进 ，四个空格
+            "error",
+            4
+        ],
+        "linebreak-style": [ //强制使用一致的换行风格 。不同操作系统换行不同，此处禁用该验证off
+            "off",
+            "windows"
+        ],
+        "quotes": [ //强制使用一致的反勾号、双引号或单引号
+            "error",
+            "single"
+        ],
+        "semi": [ // 使用分号代替 ASI自动分号插入 (semi)
+            "error",
+            "always"
+        ]
+    }
+}

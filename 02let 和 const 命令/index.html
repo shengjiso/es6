@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+    </head>
+    <body>
+        <div>ES6 新增了let命令，用来声明变量。它的用法类似于var，但是所声明的变量，只在let命令所在的代码块内有效</div>
+        不明白
+        <div>do 表达式</div>
+        <div>let x = do {</div>
+        <div> let t = f();</div>
+        <div> t * t + 1;</div>
+        <div>};</div>
+        <div>上面代码中，变量x会得到整个块级作用域的返回值（t * t + 1）。</div>
+        <div>1、不可重复声明</div>
+        <div>2、没有变量提前</div>
+        <div>3、不会绑定在顶层对象window上</div>
+        <div>4、const的值不变。。（其实是内存地址不变）必须声明的时候赋值</div>
+        <div>5、const在声明对象的时候，可以操作对象属性，但不能重新赋值对象，因为const保持内存地址不变</div>
+        <div>6、暂时性死区，因为没有变量提前，在声明前使用let、const变量会报错</div>
+        <div>7、typeof asd;let asd =1; typeof失效</div>
+        <div>8、块级作用于 function f1() {
+            let n = 5;
+            if (true) {
+            let n = 10;
+            }
+            console.log(n); // 5
+            }
+        </div>
+        <div>9、Object.freeze({}) 定义一个不可修改的对象</div>
+        <div>
+            10、冻结对象、对象属性
+            var constantize = (obj) => {
+            Object.freeze(obj);
+            Object.keys(obj).forEach( (key, i) => {
+            if ( typeof obj[key] === 'object' ) {
+            constantize( obj[key] );
+            }
+            });
+            };
+        </div>
+    </body>
+</html>
+<script>
+    {
+        let a = 10;
+        var b = 1;
+    }
+    try {
+        console.log('a = ' + a);
+        console.log('b = ' + b);
+    } catch (e) {
+        console.log(e)
+    }
+
+    for (let i = 0; i < 10; i++) {
+        //console.log(i);
+    }
+    try {
+        console.log(i);
+        console.log('b = ' + b);
+    } catch (e) {
+        console.log(e)
+    }
+
+
+    /**
+     * 变量i是var命令声明的，在全局范围内都有效，所以全局只有一个变量i。
+     * 每一次循环，变量i的值都会发生改变，而循环内被赋给数组a的函数内部的console.log(i)，
+     * 里面的i指向的就是全局的i。也就是说，所有数组a的成员里面的i，指向的都是同一个i，
+     * 导致运行时输出的是最后一轮的i的值，也就是 10。
+     * */
+    var a = [];
+    for (var i = 0; i < 10; i++) {
+        a[i] = function () {
+            console.log(i);
+        };
+    }
+    console.log(a[6]()); // 10 i已经修改为10
+
+
+    /**
+     * 变量i是let声明的，当前的i只在本轮循环有效，所以每一次循环的i其实都是一个新的变量，
+     * 所以最后输出的是6。你可能会问，如果每一轮循环的变量i都是重新声明的，那它怎么知道上一轮循环的值，
+     * 从而计算出本轮循环的值？这是因为 JavaScript 引擎内部会记住上一轮循环的值，
+     * 初始化本轮的变量i时，就在上一轮循环的基础上进行计算。
+     * */
+    var b = [];
+    for (let i = 0; i < 10; i++) {
+        b[i] = function () {
+            console.log(i);
+        };
+    }
+    console.log(b[6]()) // 6
+
+
+    /**
+     * 不存在变量提升
+     * */
+    // var 的情况
+    console.log(foo); // 输出undefined
+    var foo = 2;
+
+    // let 的情况
+    //console.log(bar); // 报错ReferenceError
+    //let bar = 2;
+
+    /**
+     *暂时性死区
+     * 只要块级作用域内存在let命令，它所声明的变量就“绑定”（binding）这个区域，不再受外部的影响。
+     * 代码中，存在全局变量tmp，但是块级作用域内let又声明了一个局部变量tmp，导致后者绑定这个块级作用域，所以在let声明变量前，对tmp赋值会报错。
+     * ES6 明确规定，如果区块中存在let和const命令，这个区块对这些命令声明的变量，从一开始就形成了封闭作用域。凡是在声明之前就使用这些变量，就会报错。
+     * */
+    var tmp = 123;
+
+    if (true) {
+        console.log(typeof qqq);
+        console.log(typeof tmp); //会报错
+        tmp = 'abc'; // ReferenceError
+        let tmp;
+    }
+
+    if (true) {
+        // TDZ开始
+        tmp = 'abc'; // ReferenceError
+        console.log(tmp); // ReferenceError
+
+        let tmp; // TDZ结束
+        console.log(tmp); // undefined
+
+        tmp = 123;
+        console.log(tmp); // 123
+    }
+
+
+    /**
+     * 不允许重复声明
+     * */
+    //let不允许在相同作用域内，重复声明同一个变量。
+    // 报错
+    function func() {
+        let a = 10;
+        var a = 1;
+    }
+
+    // 报错
+    function func() {
+        let a = 10;
+        let a = 1;
+    }
+
+    //因此，不能在函数内部重新声明参数。
+
+    function func(arg) {
+        let arg; // 报错
+    }
+
+    function func(arg) {
+        {
+            let arg; // 不报错
+        }
+    }
+
+    /**
+     * ES6 的块级作用域
+     * 函数有两个代码块，都声明了变量n，运行后输出 5。这表示外层代码块不受内层代码块的影响。
+     * 如果两次都使用var定义变量n，最后输出的值才是 10。
+     * */
+    function f1() {
+        let n = 5;
+        if (true) {
+            let n = 10;
+        }
+        console.log(n); // 5
+    }
+
+    /**
+     * const 命令
+     * */
+
+        // const声明一个只读的常量。一旦声明，常量的值就不能改变。
+    const PI = 3.1415;
+    PI // 3.1415
+    PI = 3;
+    // TypeError: Assignment to constant variable.
+
+    //const声明的变量不得改变值，这意味着，const一旦声明变量，就必须立即初始化，不能留到以后赋值。
+    const foo;
+    // SyntaxError: Missing initializer in const declaration
+
+    /**
+     *const的作用域与let命令相同：只在声明所在的块级作用域内有效。
+     * */
+    if (true) {
+        const MAX = 5;
+    }
+    MAX // Uncaught ReferenceError: MAX is not defined
+
+    /**
+     *  const命令声明的常量也是不提升，同样存在暂时性死区，只能在声明的位置后面使用。
+     * */
+
+    if (true) {
+        console.log(MAX); // ReferenceError
+        const MAX = 5;
+    }
+
+    /**
+     * 本质
+     * const实际上保证的，并不是变量的值不得改动，而是变量指向的那个内存地址不得改动。
+     * 对于简单类型的数据（数值、字符串、布尔值），值就保存在变量指向的那个内存地址，因此等同于常量。
+     * 但对于复合类型的数据（主要是对象和数组），变量指向的内存地址，保存的只是一个指针，
+     * const只能保证这个指针是固定的，至于它指向的数据结构是不是可变的，就完全不能控制了。
+     * 因此，将一个对象声明为常量必须非常小心。
+     * */
+
+    const foo = {};
+
+    // 为 foo 添加一个属性，可以成功
+    foo.prop = 123;
+    foo.prop // 123
+
+    // 将 foo 指向另一个对象，就会报错
+    foo = {}; // TypeError: "foo" is read-only
+
+
+    const a = [];
+    a.push('Hello'); // 可执行
+    a.length = 0;    // 可执行
+    a = ['Dave'];    // 报错
+
+    /**
+     * 如果真的想将对象冻结，应该使用Object.freeze方法
+     * */
+    const foo = Object.freeze({});
+
+    // 常规模式时，下面一行不起作用；
+    // 严格模式时，该行会报错
+    foo.prop = 123;
+
+    /**
+     * 将对象本身冻结，对象的属性也应该冻结。下面是一个将对象彻底冻结的函数。
+     * */
+    var constantize = (obj) =
+    >
+    {
+        Object.freeze(obj);
+        Object.keys(obj).forEach((key, i) = > {
+            if( typeof obj[key] === 'object'
+    )
+        {
+            constantize(obj[key]);
+        }
+    })
+        ;
+    }
+    ;
+
+    /**
+     * ES6 声明变量的六种方法
+     * ES5 只有两种声明变量的方法：var命令和function命令。
+     * ES6 除了添加let和const命令，后面章节还会提到，
+     * 另外两种声明变量的方法：import命令和class命令。
+     * 所以，ES6 一共有 6 种声明变量的方法。
+     * */
+
+    /**
+     * 顶层对象的属性
+     * 顶层对象，在浏览器环境指的是window对象，在 Node 指的是global对象。ES5 之中，顶层对象的属性与全局变量是等价的。
+     * */
+
+    window.a = 1;
+    a // 1
+
+    a = 2;
+    window.a // 2
+
+    /**
+     * ES6 为了改变这一点，一方面规定，为了保持兼容性，var命令和function命令声明的全局变量，依旧是顶层对象的属性；另一方面规定，let命令、const命令、class命令声明的全局变量，不属于顶层对象的属性。也就是说，从 ES6 开始，全局变量将逐步与顶层对象的属性脱钩。
+     * */
+</script>
